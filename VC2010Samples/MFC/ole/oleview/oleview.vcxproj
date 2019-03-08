@@ -70,6 +70,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
     <OutDir>amd64\$(Configuration)\</OutDir>
     <IntDir>amd64\$(Configuration)\</IntDir>
+    <IncludePath>D:\WinDDK\7600.16385.1\inc\crt;D:\WinDDK\7600.16385.1\inc\mfc42;D:\WinDDK\7600.16385.1\inc\atl71;D:\WinDDK\7600.16385.1\inc\api;D:\WinDDK\7600.16385.1\inc\ddk;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\WinDDK\7600.16385.1\lib\Crt\amd64;D:\WinDDK\7600.16385.1\lib\Mfc\amd64;D:\WinDDK\7600.16385.1\lib\ATL\amd64;D:\WinDDK\7600.16385.1\lib\win7\amd64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <OutDir>amd64\$(Configuration)\</OutDir>

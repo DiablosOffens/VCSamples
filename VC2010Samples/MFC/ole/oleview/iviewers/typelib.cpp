@@ -60,20 +60,33 @@ HRESULT CTypeLibViewer::OnView(HWND hwndParent, REFIID riid, LPUNKNOWN punk)
 
 	ASSERT(punk);
 
-	if (riid != IID_ITypeLib)
+	CTypeLibWnd wnd(CWnd::FromHandle(hwndParent)) ;
+
+	if (!punk || (riid != IID_ITypeLib && riid != IID_ITypeInfo))
 	{
-		AfxMessageBox( _T("ITypeLib interface viewer only supports IID_ITypeLib") ) ;
+		AfxMessageBox( _T("ITypeLib interface viewer only supports IID_ITypeLib and IID_ITypeInfo") ) ;
 		return E_INVALIDARG ;
 	}
 
-	CTypeLibWnd wnd(CWnd::FromHandle(hwndParent)) ;
 	if (punk)
 	{
-		sc = punk->QueryInterface( riid, (void**)&wnd.m_ptlb ) ;
-		if (FAILED(sc))
+		if (riid == IID_ITypeLib)
 		{
-			AfxMessageBox( _T("Object does not support ITypeLib") ) ;
-			return E_UNEXPECTED ;
+			sc = punk->QueryInterface(riid, (void**)&wnd.m_ptlb);
+			if (FAILED(sc))
+			{
+				AfxMessageBox(_T("Object does not support ITypeLib"));
+				return E_UNEXPECTED;
+			}
+		}
+		else if (riid == IID_ITypeInfo)
+		{
+			sc = punk->QueryInterface(riid, (void**)&wnd.m_pti);
+			if (FAILED(sc))
+			{
+				AfxMessageBox(_T("Object does not support ITypeInfo"));
+				return E_UNEXPECTED;
+			}
 		}
 	}
 
@@ -83,12 +96,15 @@ HRESULT CTypeLibViewer::OnView(HWND hwndParent, REFIID riid, LPUNKNOWN punk)
 		return E_UNEXPECTED ;
 	}
 	ASSERT(wnd.m_hWnd);
+	if (riid == IID_ITypeInfo)
+		wnd.SetWindowText(_T("ITypeInfo Viewer"));
 	if (hwndParent)
 		::EnableWindow( hwndParent, FALSE ) ;
 
 	wnd.InitialUpdateFrame( NULL, FALSE ) ;
 	wnd.RestorePosition() ;
 	wnd.UpdateWindow() ;
+	wnd.m_pTreeView->SetFocus();
 
 	// Go into a wait/peekmessage loop
 	MSG msg ;

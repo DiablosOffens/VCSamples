@@ -32,13 +32,13 @@ IMPLEMENT_DYNCREATE(CTypeLibTreeView, CView)
 CTypeLibTreeView::CTypeLibTreeView( )
 {
 	m_hTypeInfos = NULL ;
-	m_ptlb = NULL ;
+	//m_ptlb = NULL ;
 }
 
 CTypeLibTreeView::~CTypeLibTreeView()
 {
-	if (m_ptlb)
-		m_ptlb->Release() ;
+	//if (m_ptlb)
+	//	m_ptlb->Release() ;
 }
 
 
@@ -111,6 +111,7 @@ int CTypeLibTreeView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CTypeLibTreeView::OnDestroy()
 {
 	CView::OnDestroy();
+	m_tree.SelectItem(NULL);
 	m_tree.DeleteAllItems() ;
 }
 
@@ -129,13 +130,13 @@ void CTypeLibTreeView::OnSize(UINT nType, int cx, int cy)
 void CTypeLibTreeView::OnInitialUpdate()
 {
 	TRACE(_T("OnInitialUpdate\n")) ;
-	CTypeLibWnd* pFrame = (CTypeLibWnd*)GetParent()->GetParent() ;
-	ASSERT(pFrame->IsKindOf(RUNTIME_CLASS(CTypeLibWnd)));
+	//CTypeLibWnd* pFrame = (CTypeLibWnd*)GetParent()->GetParent() ;
+	//ASSERT(pFrame->IsKindOf(RUNTIME_CLASS(CTypeLibWnd)));
 
-	ASSERT(pFrame->m_ptlb) ;
-	m_ptlb = pFrame->m_ptlb ;
-	ENSURE(m_ptlb);
-	m_ptlb->AddRef() ;
+	//ASSERT(pFrame->m_ptlb) ;
+	//m_ptlb = pFrame->m_ptlb ;
+	//ENSURE(m_ptlb);
+	//m_ptlb->AddRef() ;
 
 	CView::OnInitialUpdate();
 }
@@ -149,6 +150,7 @@ void CTypeLibTreeView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 	m_tree.SetRedraw( FALSE ) ;
 	BeginWaitCursor() ;
 
+	m_tree.SelectItem(NULL);
 	m_tree.DeleteAllItems() ;
 	m_hTypeInfos = NULL ;
 
@@ -170,69 +172,118 @@ void CTypeLibTreeView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			AfxThrowMemoryException() ;
 		}
 
-		if (pFrame->m_fGroupByKind)
+		if (pFrame->m_ptlb)
 		{
-			tvis.item.cChildren = 1 ;
+			if (pFrame->m_fGroupByKind)
+			{
+				tvis.item.cChildren = 1;
+			}
+			else
+			{
+				tvis.item.cChildren = pFrame->m_ptlb->GetTypeInfoCount();
+			}
+
+			BSTR    bstrName = NULL;
+			BSTR    bstrDoc = NULL;
+			BSTR    bstrHelp = NULL;
+			DWORD   dwHelpID;
+			hr = pFrame->m_ptlb->GetDocumentation(MEMBERID_NIL, &bstrName, &bstrDoc, &dwHelpID, &bstrHelp);
+			if (FAILED(hr))
+			{
+				strError = _T("ITypeLib::GetDocumentation failed.");
+				AfxThrowMemoryException();
+			}
+
+#pragma warning (suppress: 6014)
+			CTreeItem* pItem = new CTreeItem(&m_tree);
+			if (pFrame->m_fGroupByKind)
+				pItem->m_Type = CTreeItem::typeTypeLib2;
+			else
+				pItem->m_Type = CTreeItem::typeTypeLib;
+			pItem->SetTypeLib(pFrame->m_ptlb);
+			pFrame->m_ptlb->AddRef();
+			tvis.item.lParam = (LPARAM)pItem;
+
+			COLE2CT lpszName(bstrName);
+			if (::SysStringLen(bstrDoc) != 0)
+			{
+				COLE2CT lpszDoc(bstrDoc);
+				CString str;
+				str.Format(_T("%s (%s)"), (LPCTSTR)lpszName, (LPCTSTR)lpszDoc);
+				tvis.item.pszText = str.GetBuffer(0);
+				m_hTypeInfos = m_tree.InsertItem(&tvis);
+				str.ReleaseBuffer(-1);
+			}
+			else
+			{
+				tvis.item.pszText = const_cast<LPTSTR>((LPCTSTR)lpszName);
+				m_hTypeInfos = m_tree.InsertItem(&tvis);
+			}
+
+			::SysFreeString(bstrName);
+			::SysFreeString(bstrDoc);
+			::SysFreeString(bstrHelp);
 		}
 		else
 		{
-			tvis.item.cChildren = m_ptlb->GetTypeInfoCount() ;
-		}
+			tvis.item.cChildren = 1;
 
-		BSTR    bstrName = NULL ;
-		BSTR    bstrDoc = NULL ;
-		BSTR    bstrHelp = NULL ;
-		DWORD   dwHelpID ;
-		hr = m_ptlb->GetDocumentation( MEMBERID_NIL, &bstrName, &bstrDoc, &dwHelpID, &bstrHelp ) ;
-		if (FAILED(hr))
-		{
-			strError = _T("ITypeLib::GetDocumentation failed.") ;
-			AfxThrowMemoryException() ;
-		}
+			BSTR    bstrName = NULL;
+			BSTR    bstrDoc = NULL;
+			BSTR    bstrHelp = NULL;
+			DWORD   dwHelpID;
+			hr = pFrame->m_pti->GetDocumentation(MEMBERID_NIL, &bstrName, &bstrDoc, &dwHelpID, &bstrHelp);
+			if (FAILED(hr))
+			{
+				strError = _T("ITypeInfo::GetDocumentation failed.");
+				AfxThrowMemoryException();
+			}
 
-		#pragma warning (suppress: 6014)
-		CTreeItem* pItem = new CTreeItem(&m_tree) ;
-		if (pFrame->m_fGroupByKind)
-			pItem->m_Type = CTreeItem::typeTypeLib2 ;
-		else
-			pItem->m_Type = CTreeItem::typeTypeLib ;
-		pItem->SetTypeLib( m_ptlb ) ;
-		m_ptlb->AddRef() ;
-		tvis.item.lParam = (LPARAM)pItem ;
+#pragma warning (suppress: 6014)
+			CTreeItem* pItem = new CTreeItem(&m_tree);
+			if (pFrame->m_fGroupByKind)
+				pItem->m_Type = CTreeItem::typeTypeInfo2;
+			else
+				pItem->m_Type = CTreeItem::typeTypeInfo;
+			pItem->SetTypeInfo(pFrame->m_pti);
+			pFrame->m_pti->AddRef();
+			tvis.item.lParam = (LPARAM)pItem;
 
-		COLE2CT lpszName(bstrName);
-		if (::SysStringLen(bstrDoc) != 0)
-		{
-			COLE2CT lpszDoc(bstrDoc);
-			CString str;
-			str.Format( _T("%s (%s)"), lpszName, lpszDoc);
-			tvis.item.pszText = str.GetBuffer(0);
-			m_hTypeInfos = m_tree.InsertItem( &tvis ) ;
-			str.ReleaseBuffer(-1) ;
-		}
-		else
-		{
-			tvis.item.pszText = (LPTSTR)lpszName;
-			m_hTypeInfos = m_tree.InsertItem( &tvis ) ;
-		}
+			COLE2CT lpszName(bstrName);
+			if (::SysStringLen(bstrDoc) != 0)
+			{
+				COLE2CT lpszDoc(bstrDoc);
+				CString str;
+				str.Format(_T("%s (%s)"), (LPCTSTR)lpszName, (LPCTSTR)lpszDoc);
+				tvis.item.pszText = str.GetBuffer(0);
+				m_hTypeInfos = m_tree.InsertItem(&tvis);
+				str.ReleaseBuffer(-1);
+			}
+			else
+			{
+				tvis.item.pszText = const_cast<LPTSTR>((LPCTSTR)lpszName);
+				m_hTypeInfos = m_tree.InsertItem(&tvis);
+			}
 
-		::SysFreeString( bstrName ) ;
-		::SysFreeString( bstrDoc ) ;
-		::SysFreeString( bstrHelp ) ;
+			::SysFreeString(bstrName);
+			::SysFreeString(bstrDoc);
+			::SysFreeString(bstrHelp);
+		}
 	}
 	CATCH(CException, pException)
 	{
 	}
 	END_CATCH
 
+	EndWaitCursor() ;
+	m_tree.SetRedraw( TRUE ) ;
+
 	if (m_hTypeInfos)
 	{
 		m_tree.Expand( m_hTypeInfos, TVE_EXPAND ) ;
-		//m_tree.SelectItem( m_hTypeInfos ) ;
+		m_tree.SelectItem( m_hTypeInfos ) ;
 	}
 
-	m_tree.SetRedraw( TRUE ) ;
-	EndWaitCursor() ;
 }
 
 void CTypeLibTreeView::DeleteTreeItems( HTREEITEM htree )

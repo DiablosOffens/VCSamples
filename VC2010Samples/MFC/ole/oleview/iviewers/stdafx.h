@@ -9,6 +9,9 @@
 // See these sources for detailed information regarding the
 // Microsoft Foundation Classes product.
 
+#define AFX_CRT_ERRORCHECK(expr) \
+	AtlCrtErrorCheck(expr)
+
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
 #include <afxole.h>
@@ -17,5 +20,20 @@
 #include <atlbase.h>
 #include <atlwin.h>
 #include "windowsx.h"
+#include "ehvecdtr.h"
+#include <xstddef>
 
 #pragma warning( disable: 4706 4100 )
+
+
+_STD_BEGIN
+extern "C" {
+	//using ::exception;
+
+	using ::terminate_handler;
+	using ::unexpected;
+	using ::unexpected_handler;
+};
+_STD_END
+
+extern "C" inline __declspec(noreturn) void __cdecl __std_terminate(void) { ::terminate(); }

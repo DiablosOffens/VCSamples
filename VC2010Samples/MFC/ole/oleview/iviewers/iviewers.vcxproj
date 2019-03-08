@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,27 +20,32 @@
   <PropertyGroup Label="Globals">
     <TargetName>iviewers</TargetName>
     <ProjectGUID>{736AE1A6-14A7-490D-A8B6-8EB0B6A1898F}</ProjectGUID>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -73,12 +78,16 @@
     <OutDir>..\amd64\$(Configuration)\</OutDir>
     <IntDir>amd64\$(Configuration)\</IntDir>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <IncludePath>D:\WinDDK\7600.16385.1\inc\crt;D:\WinDDK\7600.16385.1\inc\mfc42;D:\WinDDK\7600.16385.1\inc\atl71;D:\WinDDK\7600.16385.1\inc\api;D:\WinDDK\7600.16385.1\inc\ddk;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include</IncludePath>
+    <LibraryPath>D:\WinDDK\7600.16385.1\lib\Crt\amd64;D:\WinDDK\7600.16385.1\lib\Mfc\amd64;D:\WinDDK\7600.16385.1\lib\ATL\amd64;D:\WinDDK\7600.16385.1\lib\win7\amd64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <OutDir>..\amd64\$(Configuration)\</OutDir>
     <IntDir>amd64\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <IncludePath>D:\WinDDK\7600.16385.1\inc\crt;D:\WinDDK\7600.16385.1\inc\mfc42;D:\WinDDK\7600.16385.1\inc\atl71;D:\WinDDK\7600.16385.1\inc\api;D:\WinDDK\7600.16385.1\inc\ddk;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include</IncludePath>
+    <LibraryPath>D:\WinDDK\7600.16385.1\lib\Crt\amd64;D:\WinDDK\7600.16385.1\lib\Mfc\amd64;D:\WinDDK\7600.16385.1\lib\ATL\amd64;D:\WinDDK\7600.16385.1\lib\win7\amd64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -100,6 +109,7 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -128,6 +138,7 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -159,14 +170,17 @@
       </BrowseInformation>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <ModuleDefinitionFile>.\iviewers.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <GenerateMapFile>false</GenerateMapFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
@@ -185,6 +199,10 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4091;4838</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)</AdditionalOptions>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -219,26 +237,29 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="dataobj.h" />
-    <CustomBuild Include="dispatch.h" />
-    <CustomBuild Include="iadvsink.h" />
-    <CustomBuild Include="idataobj.h" />
-    <CustomBuild Include="iview.h" />
-    <CustomBuild Include="iviewer.h" />
-    <CustomBuild Include="iviewers.def" />
-    <CustomBuild Include="iviewers.h" />
-    <CustomBuild Include="res\idr_type.ico" />
-    <CustomBuild Include="res\imagelis.bmp" />
-    <CustomBuild Include="res\iviewers.rc2" />
-    <CustomBuild Include="res\toolbar.bmp" />
-    <CustomBuild Include="shadow.h" />
-    <CustomBuild Include="stdafx.h" />
-    <CustomBuild Include="tlblist.h" />
-    <CustomBuild Include="tlbodl.h" />
-    <CustomBuild Include="tlbtree.h" />
-    <CustomBuild Include="tree.h" />
-    <CustomBuild Include="typelib.h" />
-    <CustomBuild Include="util.h" />
+    <ClInclude Include="dataobj.h" />
+    <ClInclude Include="dispatch.h" />
+    <ClInclude Include="ehvecdtr.h" />
+    <ClInclude Include="iadvsink.h" />
+    <ClInclude Include="idataobj.h" />
+    <ClInclude Include="iview.h" />
+    <ClInclude Include="iviewer.h" />
+    <None Include="iviewers.def" />
+    <ClInclude Include="iviewers.h" />
+    <None Include="res\idr_type.ico" />
+    <None Include="res\imagelis.bmp" />
+    <None Include="res\iviewers.rc2">
+      <FileType>RC</FileType>
+    </None>
+    <None Include="res\toolbar.bmp" />
+    <ClInclude Include="shadow.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="tlblist.h" />
+    <ClInclude Include="tlbodl.h" />
+    <ClInclude Include="tlbtree.h" />
+    <ClInclude Include="tree.h" />
+    <ClInclude Include="typelib.h" />
+    <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="iviewers.rc" />

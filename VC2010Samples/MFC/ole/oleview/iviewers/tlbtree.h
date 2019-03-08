@@ -30,7 +30,7 @@ public:
 public:
 	CTreeCtrl       m_tree ;
 
-	ITypeLib*       m_ptlb ;
+	//ITypeLib*       m_ptlb ;
 
 	enum {IMGID_TYPELIB = 0,
 		  IMGID_TYPEINFO_C,

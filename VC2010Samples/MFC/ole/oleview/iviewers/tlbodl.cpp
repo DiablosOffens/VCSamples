@@ -25,7 +25,7 @@
 static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-#define MAX_NAMES   64     // max parameters to a function
+#define MAX_NAMES   128     // max parameters to a function
 
 IStream* CreateMemoryStream();
 int StringFromGUID2T(REFGUID rguid, LPTSTR lpszGUID, int nSize, int cbMax);
@@ -218,8 +218,8 @@ void CTypeLibODLView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 				AfxThrowOleException( hr ) ;
 
 			// Read into string
-			LPSTR lpszBuf = sText.GetBuffer(statstg.cbSize.LowPart+1);
-			if (FAILED(hr = pstm->Read( lpszBuf, statstg.cbSize.LowPart, NULL )))
+			LPTSTR lpszBuf = sText.GetBuffer(statstg.cbSize.LowPart+1);
+			if (FAILED(hr = pstm->Read( lpszBuf, statstg.cbSize.LowPart * sizeof(TCHAR), NULL )))
 				AfxThrowOleException( hr ) ;
 			lpszBuf[statstg.cbSize.LowPart] = '\0';
 			sText.ReleaseBuffer();
@@ -447,7 +447,7 @@ HRESULT CTypeLibODLView::DeCompileTypeLib( IStream* pstm, ITypeLib* ptlb, UINT u
 			if (p != NULL && *p && *(p+1))
 				str.Format( _T("  helpfile(\"%s\"),"), p+1 ) ;
 			else
-				str.Format( _T("  helpfile(\"%s\"),"), lpszHelp ) ;
+				str.Format( _T("  helpfile(\"%s\"),"), (LPCTSTR)lpszHelp ) ;
 			WRITELINE( str ) ;
 			str.Format( _T("  helpcontext(%#08.8x)"), dwHelpID ) ;
 			WRITE1( str ) ;
@@ -637,7 +637,7 @@ HRESULT CTypeLibODLView::DeCompileTypedef( IStream* pstm, ITypeInfo* pti, UINT u
 				::SysFreeString(bstrDoc);
 				bstrDoc = NULL;
 
-				str.Format( _T("helpstring(\"%s\")"), lpszDoc );
+				str.Format( _T("helpstring(\"%s\")"), (LPCTSTR)lpszDoc );
 				WRITE( str ) ;
 				if (dwHelpID > 0)
 				{
@@ -834,7 +834,7 @@ HRESULT CTypeLibODLView::DeCompileModule( IStream* pstm, ITypeInfo* pti, UINT ui
 				COLE2CT lpszDoc(bstrDoc);
 				::SysFreeString(bstrDoc);
 				bstrDoc = NULL;
-				str.Format( _T("  helpstring(\"%s\")"), lpszDoc ) ;
+				str.Format( _T("  helpstring(\"%s\")"), (LPCTSTR)lpszDoc ) ;
 				WRITE1( str ) ;
 				if (dwHelpID > 0)
 				{
@@ -945,7 +945,7 @@ HRESULT CTypeLibODLView::DeCompileInterface( IStream* pstm, ITypeInfo* pti, UINT
 				COLE2CT lpszDoc(bstrDoc);
 				::SysFreeString(bstrDoc);
 				bstrDoc = NULL;
-				str.Format( _T("  helpstring(\"%s\")"), lpszDoc ) ;
+				str.Format( _T("  helpstring(\"%s\")"), (LPCTSTR)lpszDoc ) ;
 				WRITE1( str ) ;
 				if (dwHelpID > 0)
 				{
@@ -1134,7 +1134,7 @@ HRESULT CTypeLibODLView::DeCompileDispinterface( IStream* pstm, ITypeInfo* pti, 
 				COLE2CT lpszDoc(bstrDoc);
 				::SysFreeString(bstrDoc);
 				bstrDoc = NULL;
-				str.Format( _T("  helpstring(\"%s\")"), lpszDoc ) ;
+				str.Format( _T("  helpstring(\"%s\")"), (LPCTSTR)lpszDoc ) ;
 				WRITE1( str ) ;
 				if (dwHelpID > 0)
 				{
@@ -1271,7 +1271,7 @@ HRESULT CTypeLibODLView::DeCompileCoClass( IStream* pstm, ITypeInfo* pti, UINT u
 				COLE2CT lpszDoc(bstrDoc);
 				::SysFreeString(bstrDoc);
 				bstrDoc = NULL;
-				str.Format( _T("  helpstring(\"%s\")"), lpszDoc ) ;
+				str.Format( _T("  helpstring(\"%s\")"), (LPCTSTR)lpszDoc ) ;
 				WRITE1( str ) ;
 				if (dwHelpID > 0)
 				{
@@ -1617,7 +1617,7 @@ HRESULT CTypeLibODLView::DumpFunc( IStream* pstm, ITypeInfo* pti, TYPEATTR* patt
 				COLE2CT lpszDoc(bstrDoc);
 				::SysFreeString(bstrDoc);
 				bstrDoc = NULL;
-				str.Format( _T("helpstring(\"%s\")"), lpszDoc ) ;
+				str.Format( _T("helpstring(\"%s\")"), (LPCTSTR)lpszDoc ) ;
 				WRITE( str ) ;
 				if (dwHelpID > 0)
 				{
@@ -1683,7 +1683,7 @@ HRESULT CTypeLibODLView::DumpFunc( IStream* pstm, ITypeInfo* pti, TYPEATTR* patt
 			AfxThrowOleException( hr ) ;
 
 		// fix for 'rhs' problem
-		if ((int)cNames < pfuncdesc->cParams + 1)
+		if ((int)cNames < pfuncdesc->cParams + 1 && cNames < MAX_NAMES)
 		{
 			rgbstrNames[cNames] = ::SysAllocString(OLESTR("rhs")) ;
 			cNames++ ;
@@ -1700,7 +1700,7 @@ HRESULT CTypeLibODLView::DumpFunc( IStream* pstm, ITypeInfo* pti, TYPEATTR* patt
 		//
 		if (pfuncdesc->cParams > 1)
 			WRITECR("") ;
-		for ( int n = 0 ; n < pfuncdesc->cParams ; n++ )
+		for ( int n = 0 ; n < (cNames - 1); n++ )
 		{
 			if (pfuncdesc->cParams > 1)
 				WRITE2("", 4 ) ;    // indent 4
@@ -1769,9 +1769,9 @@ HRESULT CTypeLibODLView::DumpFunc( IStream* pstm, ITypeInfo* pti, TYPEATTR* patt
 				WRITEBSTR(rgbstrNames[n+1]) ;
 
 				// Allocate cDims * lstrlen("[123456]")
-				for (USHORT n1 = 0 ; n1 < pfuncdesc->lprgelemdescParam[n1].tdesc.lpadesc->cDims ; n1++)
+				for (USHORT n1 = 0 ; n1 < pfuncdesc->lprgelemdescParam[n].tdesc.lpadesc->cDims ; n1++)
 				{
-					str.Format( _T("[%d]"), pfuncdesc->lprgelemdescParam[n1].tdesc.lpadesc->rgbounds[n1].cElements ) ;
+					str.Format( _T("[%d]"), pfuncdesc->lprgelemdescParam[n].tdesc.lpadesc->rgbounds[n1].cElements ) ;
 					WRITE(str) ;
 				}
 			}
@@ -1914,7 +1914,7 @@ HRESULT CTypeLibODLView::DumpVar( IStream* pstm, ITypeInfo* pti, TYPEATTR* pattr
 				COLE2CT lpszDoc(bstrDoc);
 				::SysFreeString(bstrDoc);
 				bstrDoc = NULL;
-				str.Format( _T("helpstring(\"%s\")"), lpszDoc ) ;
+				str.Format( _T("helpstring(\"%s\")"), (LPCTSTR)lpszDoc ) ;
 				WRITE( str ) ;
 				if (dwHelpID > 0)
 				{
@@ -2083,7 +2083,7 @@ HRESULT CTypeLibODLView::DumpConst( IStream* pstm, ITypeInfo* pti, TYPEATTR* pat
 					COLE2CT lpszDoc(bstrDoc);
 					::SysFreeString(bstrDoc);
 					bstrDoc = NULL;
-					str.Format( _T("helpstring(\"%s\")"), lpszDoc ) ;
+					str.Format( _T("helpstring(\"%s\")"), (LPCTSTR)lpszDoc ) ;
 					WRITE( str ) ;
 					if (dwHelpID > 0)
 					{

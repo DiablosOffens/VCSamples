@@ -156,6 +156,7 @@ int CIViewersApp::ExitInstance()
 
 #if (defined(_USRDLL) || defined(_AFXDLL))
 extern "C"{
+#ifndef _AFXDLL
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 {
 	return AfxDllGetClassObject(rclsid, riid, ppv);
@@ -165,6 +166,7 @@ STDAPI DllCanUnloadNow(void)
 {
 	return AfxDllCanUnloadNow();
 }
+#endif
 
 // by exporting DllRegisterServer, you can use regsvr.exe
 STDAPI DllRegisterServer(void)
@@ -205,13 +207,13 @@ STDAPI DllRegisterInterfaceViewer( REFCLSID rclsid, REFIID riid )
 			AfxThrowMemoryException() ;
 
 		COLE2T lpszIID(lpszOleIID);
-		_stprintf_s( szKey, 1024, _T("Interface\\%s"), lpszIID );
+		_stprintf_s( szKey, 1024, _T("Interface\\%s"), (LPTSTR)lpszIID );
 		cb = sizeof(szValue);
 		if ((hr = ::RegQueryValue(HKEY_CLASSES_ROOT, szKey, szValue, &cb)) != ERROR_SUCCESS)
 			AfxThrowMemoryException() ;
 
 		// Create \Interface\{iid}\Ole2ViewIViewerCLSID
-		_stprintf_s( szKey, 1024, _T("Interface\\%s\\Ole2ViewIViewerCLSID"), lpszIID);
+		_stprintf_s( szKey, 1024, _T("Interface\\%s\\Ole2ViewIViewerCLSID"), (LPTSTR)lpszIID);
 		if ((hr = ::RegCreateKey(HKEY_CLASSES_ROOT, szKey, &hk)) != ERROR_SUCCESS)
 			AfxThrowMemoryException() ;
 

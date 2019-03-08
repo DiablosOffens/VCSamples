@@ -449,9 +449,9 @@ BOOL CTreeItem::ExpandTypeInfo( HTREEITEM hitem )
 				ITypeInfo* ptiRefType = NULL ;
 
 				#pragma warning (suppress: 6246)
-				HRESULT hr = pti->GetRefTypeInfo( pattr->tdescAlias.hreftype, &ptiRefType ) ;
-				if (FAILED(hr))
-					AfxThrowOleException( hr ) ;
+				HRESULT hr2 = pti->GetRefTypeInfo( pattr->tdescAlias.hreftype, &ptiRefType ) ;
+				if (FAILED(hr2))
+					AfxThrowOleException( hr2 ) ;
 
 				pNewItem = new CTreeItem(m_pTree) ;
 				pNewItem->SetTypeInfo( ptiRefType ) ;
@@ -648,7 +648,7 @@ BOOL CTreeItem::ExpandVars( HTREEITEM hitem )
 			tvi.pszText = szBuf ;
 			m_pTree->GetItem(&tvi) ;
 			#pragma warning(suppress: 6054) // tvi.pszText will always be null terminated.
-			if (_stricmp(tvi.pszText, _T("Properties")) == 0)
+			if (_tcsicmp(tvi.pszText, _T("Properties")) == 0)
 				fProperties = TRUE ;
 		}
 
@@ -742,9 +742,9 @@ BOOL CTreeItem::ExpandVars( HTREEITEM hitem )
 				*lpD = '\0';
 
 				if (pvardesc->lpvarValue->vt == VT_BSTR)
-					strError.Format(_T("const %s %s = \"%s\""), (LPCTSTR)str, COLE2CT(rgbstrNames[0]), pstrExpand) ;
+					strError.Format(_T("const %s %s = \"%s\""), (LPCTSTR)str, (LPCTSTR)COLE2CT(rgbstrNames[0]), pstrExpand) ;
 				else
-					strError.Format(_T("const %s %s = %s"), (LPCTSTR)str, COLE2CT(rgbstrNames[0]), pstrExpand);
+					strError.Format(_T("const %s %s = %s"), (LPCTSTR)str, (LPCTSTR)COLE2CT(rgbstrNames[0]), pstrExpand);
 				//#pragma warning (suppress: 6211)
 				delete []pstrExpand ;
 				VariantClear( &varValue ) ;
@@ -771,7 +771,7 @@ BOOL CTreeItem::ExpandVars( HTREEITEM hitem )
 				if ((pvardesc->elemdescVar.tdesc.vt & 0x0FFF) == VT_CARRAY)
 				{
 					// type name[n]
-					strError.Format(_T("%s "), TYPEDESCtoString( &pvardesc->elemdescVar.tdesc.lpadesc->tdescElem) );
+					strError.Format(_T("%s "), (LPCTSTR)TYPEDESCtoString( &pvardesc->elemdescVar.tdesc.lpadesc->tdescElem) );
 					if (rgbstrNames[0])
 					{
 						COLE2CT tName (rgbstrNames[0]);
@@ -789,7 +789,7 @@ BOOL CTreeItem::ExpandVars( HTREEITEM hitem )
 				else
 				{
 					// type name
-					strError.Format(_T("%s "),strError = TYPEDESCtoString( &pvardesc->elemdescVar.tdesc ));
+					strError.Format(_T("%s "), (LPCTSTR)(strError = TYPEDESCtoString( &pvardesc->elemdescVar.tdesc )));
 					if (rgbstrNames[0]) {
 					  COLE2CT tName (rgbstrNames[0]);
 					  strError += tName;
@@ -1033,7 +1033,7 @@ void CTreeItem::GetName(CString& szReturn, BOOL fIDLStyle /*= FALSE*/)
 			// typedef [attributes] basetype aliasname;
 			case TKIND_ALIAS:
 				szReturn.Format(_T("typedef %s %s"),
-					::TYPEDESCtoString(GetTypeInfo(), &pattr->tdescAlias), lpszName);
+					(LPCTSTR)::TYPEDESCtoString(GetTypeInfo(), &pattr->tdescAlias), lpszName);
 			break ;
 
 			// typedef [attributes] union [tag] {

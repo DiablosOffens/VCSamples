@@ -511,7 +511,7 @@ HRESULT CIDataObjectDlg::GotData( LPFORMATETC lpfetc, LPSTGMEDIUM lpstm )
 		#else
 			if (lpfetc->cfFormat == CF_TEXT)
 			{
-				UINT n = _mbstrlen( (LPCSTR)lpsz ) ;
+				UINT n = (UINT)_mbstrlen( (LPCSTR)lpsz ) ;
 				TCHAR* sztemp = new TCHAR[n+1] ;
 				mbstowcs( sztemp, (LPSTR)lpsz, n ) ;
 				WriteToOutput( sztemp ) ;

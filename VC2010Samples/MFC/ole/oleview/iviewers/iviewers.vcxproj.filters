@@ -85,6 +85,9 @@
     <ClInclude Include="dispatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ehvecdtr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="iadvsink.h">
       <Filter>Header Files</Filter>
     </ClInclude>

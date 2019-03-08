@@ -72,6 +72,7 @@ public:
 // Attributes
 public:
 	ITypeLib*       m_ptlb ;
+	ITypeInfo*		m_pti ;
 
 	CSplitterWnd    m_wndSplitter ;
 	CTypeLibTreeView*   m_pTreeView ;
